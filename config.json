@@ -1,8 +1,10 @@
 {
-    "host": "127.0.0.1",
-    "user": "root",
-    "password": "rootUser",
-    "database": "tdw_db",
-    "port": 3306,
-    "LICENSE_KEY": "abcd-efgh-ijkl"
+  "project_name": "customLogger",
+  "auth_key": "abcd-efgh-ijkl",
+  "project_env": "development",
+  "user": "devUser",
+  "host": "localhost",
+  "database": "customLogger",
+  "password": "toor",
+  "port": 5432
 }
