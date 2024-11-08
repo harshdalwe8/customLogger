@@ -1,6 +1,4 @@
-<<<<<<< HEAD
-# customLogger
-=======
+
 # 🎉 Custom Logger
 
 An efficient, customizable, and easy-to-use logging library for Node.js applications! This logger captures various log levels (info, warning, error, etc.), stores them in a MySQL database, and displays logs in a structured JSON format on the console/terminal. Ideal for real-time log tracking with an optional server!
@@ -95,4 +93,3 @@ This project is licensed under the MIT License.
 Contributions are welcome! For major changes, open an issue first to discuss what you’d like to modify.
 
 ## 🎉 Thank you for using Custom Logger! Happy Logging! 🚀
->>>>>>> ebb2aabed7eded743398edc07b1889e5355b9c10
