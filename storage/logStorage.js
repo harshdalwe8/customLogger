@@ -1,7 +1,7 @@
 // fileStorage.js
 const { Pool } = require('pg');
 const { gatherConfig, saveConfig } = require('../prompt_module/setupConfig');
-const dbConfig = require('./dbConfig.json');
+const dbConfig = require('../config/dbConfig.json');
 
 
 const pool = new Pool({
@@ -19,9 +19,9 @@ const pool = new Pool({
 // Function to initialize the logs table if it doesn't exist
 async function initializeLogTable() {
   // Run the setup
-  // await gatherConfig()
-  //   .then(saveConfig)
-  //   .catch(console.error);
+  await gatherConfig()
+    .then(saveConfig)
+    .catch(console.error);
 
   const createTableQuery = `
     CREATE TABLE IF NOT EXISTS templogs (

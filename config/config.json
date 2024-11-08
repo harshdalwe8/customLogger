@@ -1,10 +1,5 @@
 {
-  "project_name": "customLogger",
-  "auth_key": "abcd-efgh-ijkl",
+  "auth_key": "nnnn",
   "project_env": "development",
-  "user": "devUser",
-  "host": "localhost",
-  "database": "customLogger",
-  "password": "toor",
-  "port": 5432
+  "log_port": "5500"
 }

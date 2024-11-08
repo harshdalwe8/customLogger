@@ -4,7 +4,7 @@ const path = require('path');
 const { prompt } = require('enquirer');
 
 // File path for config.json
-const configPath = path.join(__dirname, 'config.json');
+const configPath = path.join(__dirname, '../config/config.json');
 
 // Function to gather inputs
 async function gatherConfig() {
@@ -33,7 +33,7 @@ async function gatherConfig() {
 
 // Save configuration to config.json
 function saveConfig(config) {
-  fs.appendFileSync(configPath, JSON.stringify(config, null, 2));
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
   console.log(`Configuration saved to ${configPath}`);
 }
 
