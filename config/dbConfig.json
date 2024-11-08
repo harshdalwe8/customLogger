@@ -1,0 +1,10 @@
+{
+    "user": "devuser",
+    "host": "localhost",
+    "database": "customLogger",
+    "password": "rootUser",
+    "port": 5432,
+    "max": 20,
+    "idleTimeoutMillis": 30000,
+    "connectionTimeoutMillis": 5000
+  }
