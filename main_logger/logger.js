@@ -1,6 +1,6 @@
 // logger.js
-const { writeToDatabase } = require('./logStorage');
-const { colorize } = require('./colors');
+const { writeToDatabase } = require('../storage/logStorage');
+const { colorize } = require('../colors/colors');
 
 class Logger {
   constructor() {

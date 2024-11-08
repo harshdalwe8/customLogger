@@ -1,26 +1,18 @@
 // fileStorage.js
 const { Pool } = require('pg');
-const { gatherConfig, saveConfig } = require('./setupConfig');
-const config = require('./config.json');
+const { gatherConfig, saveConfig } = require('../prompt_module/setupConfig');
+const dbConfig = require('./dbConfig.json');
 
-// Configure PostgreSQL connection
-// const pool = new Pool({
-//   user: 'devUser',           // Your PostgreSQL username
-//   host: 'localhost',         // Your database host (e.g., 'localhost' or IP address)
-//   database: 'customLogger',  // Your database name
-//   password: 'rootUser',       // Your password
-//   port: 5432,     
-//   max: 20,                     // maximum number of connections in the pool
-//   idleTimeoutMillis: 30000,    // close idle clients after 30 seconds
-//   connectionTimeoutMillis: 2000 // return an error after 2 seconds if connection could not be established
-// });
 
 const pool = new Pool({
-  user: 'devuser',           // Your PostgreSQL username
-  host: 'localhost',         // Your database host (e.g., 'localhost' or IP address)
-  database: 'customLogger',  // Your database name
-  password: 'rootUser',       // Your password
-  port: 5432,                // Your database port (default is 5432)
+  user: dbConfig.user,                                           // Your PostgreSQL username
+  host: dbConfig.host,                                           // Your database host (e.g., 'localhost' or IP address)
+  database: dbConfig.database,                                   // Your database name
+  password: dbConfig.password,                                   // Your password
+  port: dbConfig.port,                                           // Your database port (default is 5432)
+  max: dbConfig.max,                                             // maximum number of connections in the pool
+  idleTimeoutMillis: dbConfig.idleTimeoutMillis,                 // close idle clients after 30 seconds
+  connectionTimeoutMillis: dbConfig.connectionTimeoutMillis      // return an error after 5 seconds if connection could not be established
 });
 
 

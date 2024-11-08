@@ -1,6 +1,6 @@
 // index.js
-const Logger = require('./logger');
-const httpLogger = require('./httpLogger');
+const Logger = require('./main_logger/logger');
+const httpLogger = require('./http_module/httpLogger');
 
 module.exports = {
   logger: new Logger(),

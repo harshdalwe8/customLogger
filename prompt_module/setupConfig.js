@@ -11,11 +11,6 @@ async function gatherConfig() {
   const responses = await prompt([
     {
       type: 'input',
-      name: 'project_name',
-      message: 'Enter project name:'
-    },
-    {
-      type: 'input',
       name: 'auth_key',
       message: 'Enter auth key:'
     },
@@ -25,7 +20,12 @@ async function gatherConfig() {
       message: 'Select project environment',
       choices: ['development', 'staging', 'production'],
       initial: 'development'
-    }
+    },
+    {
+        type: 'input',
+        name: 'log_port',
+        message: 'Enter port available to view logs:'
+      }
   ]);
 
   return responses;

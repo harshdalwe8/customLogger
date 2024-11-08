@@ -1,5 +1,5 @@
 // httpLogger.js
-const Logger = require('./logger');
+const Logger = require('../main_logger/logger');
 const logger = new Logger();
 
 function httpLogger(req, res, next) {
