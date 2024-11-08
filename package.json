@@ -1,6 +1,6 @@
 {
   "name": "log-vista",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "This is a project which capture logs and stores in database and display on web inreal time",
   "main": "index.js",
   "scripts": {
