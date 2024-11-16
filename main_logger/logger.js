@@ -7,35 +7,37 @@ class Logger {
     this.logLevels = { info: 'INFO', warn: 'WARN', error: 'ERROR', debug: 'DEBUG' };
   }
 
-  async log(level, message, meta = {}) {
+  async log(level, tag, message, meta = {}) {
     const logEntry = {
       timestamp: new Date().toISOString(),
       level,
+      tag,
       message,
       meta
     };
+    
+    // Write to PostgreSQL database
+    await writeToDatabase(logEntry);
 
     // Write to console with color
     console.log(colorize(level.toLowerCase(), JSON.stringify(logEntry)));
 
-    // Write to PostgreSQL database
-    await writeToDatabase(logEntry);
   }
 
-  info(message, meta) {
-    this.log(this.logLevels.info, message, meta);
+  info(tag, message, meta) {
+    this.log(this.logLevels.info, tag, message, meta);
   }
 
-  warn(message, meta) {
-    this.log(this.logLevels.warn, message, meta);
+  warn(tag, message, meta) {
+    this.log(this.logLevels.warn, tag, message, meta);
   }
 
-  error(message, meta) {
-    this.log(this.logLevels.error, message, meta);
+  error(tag, message, meta) {
+    this.log(this.logLevels.error, tag, message, meta);
   }
 
-  debug(message, meta) {
-    this.log(this.logLevels.debug, message, meta);
+  debug(tag, message, meta) {
+    this.log(this.logLevels.debug, tag, message, meta);
   }
 }
 

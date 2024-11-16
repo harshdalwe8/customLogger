@@ -11,6 +11,11 @@ async function gatherConfig() {
   const responses = await prompt([
     {
       type: 'input',
+      name: 'project_name',
+      message: 'Enter project name:'
+    },
+    {
+      type: 'input',
       name: 'auth_key',
       message: 'Enter auth key:'
     },
@@ -31,11 +36,29 @@ async function gatherConfig() {
   return responses;
 }
 
+// Function to load existing config if available
+function loadConfig() {
+  if (fs.existsSync(configPath)) {
+    const existingConfig = fs.readFileSync(configPath);
+    return JSON.parse(existingConfig);
+  }
+  return {}; // Return an empty object if the file doesn't exist
+}
+
+
 // Save configuration to config.json
-function saveConfig(config) {
-  fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+function saveConfig(newConfig) {
+  const existingConfig = loadConfig();
+  
+  // Merge existing config with new config
+  const updatedConfig = { ...existingConfig, ...newConfig };
+
+  // Save the merged config to config.json
+  fs.writeFileSync(configPath, JSON.stringify(updatedConfig, null, 2));
   console.log(`Configuration saved to ${configPath}`);
 }
+
+
 
 module.exports = {
     gatherConfig,

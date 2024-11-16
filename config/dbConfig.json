@@ -1,7 +1,7 @@
 {
     "user": "devuser",
-    "host": "localhost",
-    "database": "customLogger",
+    "host": "77.37.45.34",
+    "database": "logvista",
     "password": "rootUser",
     "port": 5432,
     "max": 20,
