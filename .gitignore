@@ -131,4 +131,6 @@ dist
 
 
 # database config
-.json
+*.json
+
+config/
