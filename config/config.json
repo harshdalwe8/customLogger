@@ -1,6 +1,0 @@
-{
-  "project_name": "testprojectlogs",
-  "auth_key": "newauthkey",
-  "project_env": "development",
-  "log_port": "5060"
-}
