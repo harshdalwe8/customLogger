@@ -1,3 +1,35 @@
+# Logvista
+
+**Logvista** is a self-hosted log ingestion service. 
+
+## 📦 Install
+```bash
+npm install logvista
+```
+
+## ⚙️ Initialize
+```bash
+npx logvista init
+```
+
+## 🚀 Start Server
+```bash
+npx logvista start
+```
+
+## 📤 Send Logs
+```bash
+curl -X POST http://localhost:5566/logs -H "Content-Type: application/json" -d '{ "timestamp": "2025-06-05T18:20:00Z", "level": "error", "message": "Payment failed", "tag": "user", "metadata": {"userId": "123"}, "projectId": "xxx", "clientId": "yyy" }'
+```
+
+## 📥 Retrieve Logs
+```bash
+curl 'http://localhost:5566/logs?projectId=xxx&clientId=yyy&page=1&limit=50'
+```
+
+---
+MIT License © Your Name
+
 
 # 🎉 Custom Logger
 

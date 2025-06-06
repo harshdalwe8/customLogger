@@ -1,0 +1,278 @@
+// logvista package structure and files
+
+
+logvista/
+├── bin/
+│   ├── logvista.js             
+│   ├── logvista-init.js        
+│   └── logvista-start.js      
+├── prisma/
+│   └── schema.prisma           
+├── src/
+│   ├── config.js               
+│   ├── db.js                   
+│   └── server.js               
+├── test/
+│   ├── init.test.js            
+│   └── logs.test.js           
+├── .env.example                
+├── index.js                    
+├── package.json                
+├── README.md                   
+└── jest.config.js              
+
+
+
+// bin/logvista.js
+#!/usr/bin/env node
+const { execSync } = require('child_process');
+const [,, cmd] = process.argv;
+
+if (cmd === 'init') {
+  execSync('node ./node_modules/logvista/bin/logvista-init.js', { stdio: 'inherit' });
+} else if (cmd === 'start') {
+  execSync('node ./node_modules/logvista/bin/logvista-start.js', { stdio: 'inherit' });
+} else {
+  console.log('Usage: logvista <init|start>');
+}
+
+// bin/logvista-init.js
+const inquirer = require('inquirer');
+const axios = require('axios');
+const fs = require('fs');
+const { execSync } = require('child_process');
+const path = require('path');
+
+(async () => {
+  try {
+    const { organisationId } = await inquirer.prompt({
+      type: 'input',
+      name: 'organisationId',
+      message: 'Enter your Organisation ID:'
+    });
+
+    const response = await axios.get(`https://central.example.com/api/organization/${organisationId}/config`);
+    const config = response.data;
+
+    const { projectId } = await inquirer.prompt({
+      type: 'list',
+      name: 'projectId',
+      choices: config.projects,
+      message: 'Select a Project ID:'
+    });
+
+    const { serverId } = await inquirer.prompt({
+      type: 'list',
+      name: 'serverId',
+      choices: config.servers,
+      message: 'Select a Server ID:'
+    });
+
+    const { usePostgres } = await inquirer.prompt({
+      type: 'confirm',
+      name: 'usePostgres',
+      message: 'Do you want to use PostgreSQL instead of SQLite?',
+      default: false
+    });
+
+    let dbUrl;
+    if (usePostgres) {
+      const dbDetails = await inquirer.prompt([
+        { name: 'host', message: 'PostgreSQL Host:' },
+        { name: 'port', message: 'Port:', default: '5432' },
+        { name: 'user', message: 'User:' },
+        { name: 'password', message: 'Password:', type: 'password' },
+        { name: 'database', message: 'Database name:' },
+      ]);
+
+      dbUrl = `postgresql://${dbDetails.user}:${dbDetails.password}@${dbDetails.host}:${dbDetails.port}/${dbDetails.database}`;
+    } else {
+      dbUrl = 'file:./logvista.db';
+    }
+
+    const envContent = `ORGANISATION_ID=${config.organisation_id}
+CLIENT_ID=${config.client_id}
+PROJECT_ID=${projectId}
+SERVER_ID=${serverId}
+KEY_VALIDITY_DATE=${config.key_validity_date}
+DB_URL=${dbUrl}
+PORT=5566
+CENTRAL_API_BASEURL=https://central.example.com/api
+`;
+
+    fs.writeFileSync('.env', envContent);
+
+    execSync('npx prisma init', { stdio: 'inherit' });
+    fs.copyFileSync(path.join(__dirname, '../prisma/schema.prisma'), './prisma/schema.prisma');
+    execSync('npx prisma migrate dev --name init', { stdio: 'inherit' });
+
+    console.log('✅ logvista initialized successfully.');
+  } catch (err) {
+    console.error('❌ Initialization failed:', err.message);
+  }
+})();
+
+// bin/logvista-start.js
+const { exec } = require('child_process');
+exec('pm2 start ./node_modules/logvista/src/server.js --name logvista', (err, stdout, stderr) => {
+  if (err) console.error('PM2 Start Error:', err);
+  else console.log(stdout);
+});
+
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+model Log {
+  id        String   @id @default(uuid())
+  timestamp DateTime @default(now())
+  level     String
+  message   String
+  tag       String?
+  metadata  Json
+  projectId String
+  clientId  String
+}
+
+// src/config.js
+const fs = require('fs');
+const dotenv = require('dotenv');
+
+if (fs.existsSync('.env')) {
+  dotenv.config();
+} else {
+  module.exports = require('../logvista.config.json');
+}
+
+module.exports = {
+  ORGANISATION_ID: process.env.ORGANISATION_ID,
+  CLIENT_ID: process.env.CLIENT_ID,
+  PROJECT_ID: process.env.PROJECT_ID,
+  SERVER_ID: process.env.SERVER_ID,
+  KEY_VALIDITY_DATE: process.env.KEY_VALIDITY_DATE,
+  DB_URL: process.env.DB_URL,
+  PORT: process.env.PORT || 5566,
+  CENTRAL_API_BASEURL: process.env.CENTRAL_API_BASEURL
+};
+
+// src/db.js
+const { PrismaClient } = require('@prisma/client');
+module.exports = new PrismaClient();
+
+// src/server.js
+const express = require('express');
+const portfinder = require('portfinder');
+const bodyParser = require('body-parser');
+const config = require('./config');
+const prisma = require('./db');
+
+(async () => {
+  const app = express();
+  app.use(bodyParser.json());
+
+  app.post('/logs', async (req, res) => {
+    const log = req.body;
+    if (log.projectId !== config.PROJECT_ID || log.clientId !== config.CLIENT_ID) {
+      return res.status(401).json({ error: 'Invalid project/client ID' });
+    }
+
+    try {
+      await prisma.log.create({ data: log });
+      res.status(201).json({ success: true });
+    } catch (err) {
+      console.error('DB Error:', err);
+      res.status(400).json({ error: 'Invalid log format' });
+    }
+  });
+
+  app.get('/logs', async (req, res) => {
+    const { projectId, clientId, page = 1, limit = 100 } = req.query;
+    if (projectId !== config.PROJECT_ID || clientId !== config.CLIENT_ID) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const logs = await prisma.log.findMany({
+      skip: (page - 1) * limit,
+      take: parseInt(limit),
+      where: { projectId, clientId },
+      orderBy: { timestamp: 'desc' }
+    });
+    res.json(logs);
+  });
+
+  portfinder.basePort = parseInt(config.PORT);
+  const port = await portfinder.getPortPromise();
+  app.listen(port, () => console.log(`🚀 Logvista running on http://localhost:${port}`));
+})();
+
+// .env.example
+ORGANISATION_ID=
+CLIENT_ID=
+PROJECT_ID=
+SERVER_ID=
+KEY_VALIDITY_DATE=
+DB_URL=postgresql://user:pass@localhost:5432/logvistadb
+PORT=5566
+CENTRAL_API_BASEURL=https://central.example.com/api
+
+// index.js
+module.exports = {};
+
+// jest.config.js
+module.exports = {
+  testEnvironment: 'node'
+};
+
+// test/init.test.js
+const fs = require('fs');
+test('creates .env after init', () => {
+  expect(fs.existsSync('.env')).toBe(true);
+});
+
+// test/logs.test.js
+const request = require('supertest');
+const app = require('../src/server');
+
+test('GET /logs unauthorized', async () => {
+  const res = await request(app).get('/logs?projectId=wrong&clientId=wrong');
+  expect(res.statusCode).toBe(401);
+});
+
+// README.md
+# Logvista
+
+**Logvista** is a self-hosted log ingestion service. 
+
+## 📦 Install
+```bash
+npm install logvista
+```
+
+## ⚙️ Initialize
+```bash
+npx logvista init
+```
+
+## 🚀 Start Server
+```bash
+npx logvista start
+```
+
+## 📤 Send Logs
+```bash
+curl -X POST http://localhost:5566/logs -H "Content-Type: application/json" -d '{ "timestamp": "2025-06-05T18:20:00Z", "level": "error", "message": "Payment failed", "tag": "user", "metadata": {"userId": "123"}, "projectId": "xxx", "clientId": "yyy" }'
+```
+
+## 📥 Retrieve Logs
+```bash
+curl 'http://localhost:5566/logs?projectId=xxx&clientId=yyy&page=1&limit=50'
+```
+
+---
+MIT License © Your Name

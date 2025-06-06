@@ -1,11 +1,24 @@
 {
   "name": "log-vista",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "This is a project which capture logs and stores in database and display on web inreal time",
   "main": "index.js",
+  "bin": {
+    "logvista": "./bin/logvista.js"
+  },
   "scripts": {
     "start": "node index.js"
   },
+  "files": [
+    "bin",
+    "src",
+    "prisma",
+    "test",
+    "index.js",
+    ".env.example",
+    "README.md"
+  ],
+  "keywords": ["logging", "server", "log-ingestion", "log-monitoring", "self-hosted"],
   "author": "Harsh Dalwe harshdalwe8@gmail.com",
   "license": "ISC",
   "dependencies": {
