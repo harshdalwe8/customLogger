@@ -1,10 +1,13 @@
 {
   "name": "log-vista",
-  "version": "1.1.1",
+  "version": "1.1.3",
   "description": "This is a project which capture logs and stores in database and display on web inreal time",
   "main": "index.js",
   "bin": {
-    "logvista": "./bin/logvista.js"
+    "logvista": "bin/logvista.js",
+    "logvista-start": "bin/logvista-start.js",
+    "logvista-stop": "bin/logvista-stop.js",
+    "logvista-status": "bin/logvista-status.js"
   },
   "scripts": {
     "start": "node index.js"
@@ -18,12 +21,19 @@
     ".env.example",
     "README.md"
   ],
-  "keywords": ["logging", "server", "log-ingestion", "log-monitoring", "self-hosted"],
+  "keywords": [
+    "logging",
+    "server",
+    "log-ingestion",
+    "log-monitoring",
+    "self-hosted"
+  ],
   "author": "Harsh Dalwe harshdalwe8@gmail.com",
   "license": "ISC",
   "dependencies": {
     "enquirer": "^2.4.1",
     "pg": "^8.13.1",
-    "prompt-sync": "^4.2.0"
+    "prompt-sync": "^4.2.0",
+    "pm2": "^latest"
   }
 }

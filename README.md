@@ -4,7 +4,7 @@
 
 ## 📦 Install
 ```bash
-npm install logvista
+npm install log-vista
 ```
 
 ## ⚙️ Initialize

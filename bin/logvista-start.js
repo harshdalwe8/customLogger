@@ -1,6 +1,24 @@
-// bin/logvista-start.js
-const { exec } = require('child_process');
-exec('pm2 start ./node_modules/logvista/src/server.js --name logvista', (err, stdout, stderr) => {
-  if (err) console.error('PM2 Start Error:', err);
-  else console.log(stdout);
+import pm2 from 'pm2';
+import { resolve } from 'path';
+
+const script = resolve(__dirname, '../src/server.js');
+
+pm2.connect(err => {
+  if (err) {
+    console.error('❌ PM2 connection error:', err);
+    process.exit(2);
+  }
+
+  pm2.start({
+    script,
+    name: 'logvista',
+    watch: false
+  }, (err) => {
+    if (err) {
+      console.error('❌ Failed to start logvista with PM2:', err);
+    } else {
+      console.log('🚀 logvista server started with PM2');
+    }
+    pm2.disconnect();
+  });
 });
